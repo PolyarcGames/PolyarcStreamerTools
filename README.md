@@ -1,2 +1,2 @@
-# PolyarcStreamerTools
-Documentation for the streamer tools and API in Polyarc Games
+# PolyarcCreatorTools
+Documentation for the Creator Tools and API in Polyarc Games
