@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Spectator Camera Control</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="control-group">
+      <label for="languageSelect" data-i18n="language_label">Language</label>
+      <select id="languageSelect" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="ar">العربية</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="it">Italiano</option>
+        <option value="ko">한국어</option>
+        <option value="nl">Nederlands</option>
+        <option value="pt-BR">Português (Brasil)</option>
+        <option value="ru">Русский</option>
+        <option value="tr">Türkçe</option>
+        <option value="zh-CN">简体中文</option>
+        <option value="zh-TW">繁體中文</option>
+      </select>
+    </div>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="cameraEnabledCheckbox" onchange="toggleSpectatorCameraEnabledFlag()">
+      <label for="cameraEnabledCheckbox" data-i18n="spectator_camera">Spectator Camera</label>
+    </div>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="autoLaunchCheckbox" onchange="toggleAutoLaunchEnabled()">
+      <label for="autoLaunchCheckbox" data-i18n="auto_show_control_panel">Auto Show Control Panel</label>
+    </div>
+
+    <p id="status"></p>
+  </div>
+
+  <div class="container">  
+    <h2 data-i18n="cameras_mount_list">Camera Mounts</h2>
+
+    <div class="camera-controls">
+      <div class="camera-cycle-row">
+        <button class="cycle-btn" onclick="cyclePreviousCameraMount()">&lt;</button>
+        <div class="camera-display">
+          <span id="activeCameraMount">Loading...</span>
+        </div>
+        <button class="cycle-btn" onclick="cycleNextCameraMount()">&gt;</button>
+      </div>
+    </div>
+
+    <div class="camera-mount-list-container" id="camerasMountList">
+      <p data-i18n="loading_camera_mounts">Loading Camera Mounts...</p>
+    </div>
+
+    <button id="addCameraMountBtn" class="add-camera-mount-btn" onclick="createNewCameraMount()" data-i18n="add_new_camera">Add New Camera Mount</button>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="rightThumbstickCycleCheckbox" onchange="updateSpectatorSetting('right_thumbstick_cycle', this.checked)">
+      <label for="rightThumbstickCycleCheckbox" data-i18n="right_thumbstick_cycle">Enable Right Thumbstick Cycle</label>
+    </div>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="hideCameraMountsCheckbox" onchange="updateSpectatorSetting('camera_mounts_hidden', this.checked); updateAddCameraButtonState(this.checked)">
+      <label for="hideCameraMountsCheckbox" data-i18n="hide_camera_mounts">Hide Camera Mounts</label>
+    </div>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="hideSpectatorHUDCheckbox" onchange="updateSpectatorSetting('spectator_hud_hidden', this.checked)">
+      <label for="hideSpectatorHUDCheckbox" data-i18n="hide_spectator_hud">Hide Camera Name in VR</label>
+    </div>
+
+    <div class="control-group checkbox-wrapper">
+      <input type="checkbox" id="autoFocusCheckbox" onchange="updateSpectatorSetting('auto_focus', this.checked)">
+      <label for="autoFocusCheckbox" data-i18n="auto_focus">Auto Focus</label>
+    </div>
+
+  </div>
+
+  <div class="container">
+    <h2 data-i18n="spectator_camera_settings">Spectator Camera Settings</h2>
+
+    <div class="settings-grid">
+      <div class="setting-item">
+        <label for="velocitySmoothing" data-i18n="velocity_smoothing">Velocity Smoothing</label>
+        <input type="range" id="velocitySmoothing" step="0.1" min="0" max="10" onchange="updateSpectatorSetting('velocity_smoothing', this.value)" oninput="updateRangeDisplay('velocitySmoothing', this.value)">
+        <span id="velocitySmoothingValue">0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="rotationSmoothing" data-i18n="rotation_smoothing">Rotation Smoothing</label>
+        <input type="range" id="rotationSmoothing" step="0.1" min="0" max="10" onchange="updateSpectatorSetting('rotation_smoothing', this.value)" oninput="updateRangeDisplay('rotationSmoothing', this.value)">
+        <span id="rotationSmoothingValue">0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="maxLagDistance" data-i18n="max_lag_distance">Max Lag Distance</label>
+        <input type="range" id="maxLagDistance" step="1" min="0" max="500" onchange="updateSpectatorSetting('max_lag_distance', this.value)" oninput="updateRangeDisplay('maxLagDistance', this.value)">
+        <span id="maxLagDistanceValue">0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="fov" data-i18n="fov">Field of View</label>
+        <input type="range" id="fov" step="1" min="30" max="110" onchange="updateSpectatorSetting('fov', this.value)" oninput="updateRangeDisplay('fov', this.value)">
+        <span id="fovValue">30</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="pixelDensity" data-i18n="pixel_density">VR Pixel Density</label>
+        <input type="range" id="pixelDensity" step="1" min="50" max="100" onchange="updateSpectatorSetting('pixel_density', this.value)" oninput="updateRangeDisplay('pixelDensity', this.value)">
+        <span id="pixelDensityValue">100</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="gamma" data-i18n="gamma">Gamma</label>
+        <input type="range" id="gamma" step="0.01" min="1.0" max="2.4" onchange="updateSpectatorSetting('gamma', this.value)" oninput="updateRangeDisplay('gamma', this.value)">
+        <span id="gammaValue">1.0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="personalBubbleRadius" data-i18n="personal_bubble_radius">Personal Bubble Radius</label>
+        <input type="range" id="personalBubbleRadius" min="0" max="1250" step="1" onchange="updateSpectatorSetting('personal_bubble_radius', this.value)" oninput="updatePersonalBubbleRadiusDisplay(this.value)">
+        <span id="personalBubbleRadiusValue">0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="overlayUIScale" data-i18n="overlay_ui_scale">Overlay UI Scale</label>
+        <input type="range" id="overlayUIScale" min="0.5" max="1.0" step="0.1" onchange="updateSpectatorSetting('overlay_ui_scale', this.value)" oninput="updateRangeDisplay('overlayUIScale', this.value)">
+        <span id="overlayUIScaleValue">1.0</span>
+      </div>
+
+      <div class="setting-item">
+        <label for="resolution" data-i18n="resolution">Resolution</label>
+        <select id="resolution" onchange="updateSpectatorSetting('resolution', this.value)">
+          <option value="640x480w">640x480</option>
+          <option value="1280x720w">1280x720</option>
+          <option value="1920x1080w">1920x1080</option>
+          <option value="2560x1440w">2560x1440</option>
+          <option value="3840x2160w">3840x2160</option>
+        </select>
+      </div>
+
+      <div class="setting-item checkbox-wrapper">
+        <input type="checkbox" id="rollEnabledCheckbox" onchange="updateSpectatorSetting('roll_enabled', this.checked)">
+        <label for="rollEnabledCheckbox" data-i18n="roll_enabled">Roll Enabled</label>
+      </div>
+
+      <div class="setting-item checkbox-wrapper">
+        <input type="checkbox" id="overlayEnabledCheckbox" onchange="updateOverlaySetting('enabled', this.checked)">
+        <label for="overlayEnabledCheckbox" data-i18n="overlay_enabled">Overlay Enabled</label>
+      </div>
+
+    </div>
+  </div>  
+
+  <div class="container">
+    <button class="reset-defaults-btn" onclick="resetToDefaults()" data-i18n="reset_to_defaults">Reset To Defaults</button>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="camera-mount-control.js"></script>
+  <script src="spectator-control.js"></script>
+  <script src="remote-control.js"></script>
+  <script>
+    window.onload = () => {
+      // Load saved language preference
+      const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+      document.getElementById('languageSelect').value = savedLang;
+      changeLanguage(savedLang);
+
+      fetchAutoLaunchEnabled();
+      fetchSpectatorCameraEnabledFlag();
+      fetchCurrentCameraMountName();
+      loadSpectatorSettings();
+      loadCameraMounts();
+    };
+  </script>
+</body>
+</html>
